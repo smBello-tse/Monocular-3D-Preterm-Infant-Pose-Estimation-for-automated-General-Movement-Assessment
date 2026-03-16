@@ -1,0 +1,63 @@
+# General
+train_2d: False
+no_eval: False
+finetune: True
+partial_train: null
+nb_views: 1
+model_type: mod
+train_protocol: 2
+
+
+# Training
+epochs: 10
+checkpoint_frequency: 30
+batch_size: 32
+dropout: 0.2
+learning_rate: 0.0005
+weight_decay: 0.01
+lr_decay: 0.99
+momentum: 0.9
+save_best: True
+
+# Model
+maxlen: 243
+dim_feat: 256
+mlp_ratio: 4
+depth: 4
+dim_rep: 512
+num_heads: 8
+att_fuse: True
+
+# Data
+data_root: data/motion3d/MB3D_f243s81/
+subset_list: [DATA-SH]
+dt_file: data.pkl
+clip_len: 81
+data_stride: 81
+rootrel: False
+sample_stride: 1
+num_joints: 17
+no_conf: False
+gt_2d: False
+
+# Loss
+lambda_3d_velocity: 20.0
+lambda_scale: 0.5
+lambda_lv: 0.0
+lambda_lg: 0.0
+lambda_a: 0.0
+lambda_av: 0.0
+lambda_reproj: 1.0
+lambda_view: 10.
+lambda_depth: 5.
+lambda_aligned: 1.
+
+# Augmentation
+synthetic: False
+flip: True
+mask_ratio: 0.
+mask_T_ratio: 0.
+noise: False
+rotation: False
+scheduler: linear
+tau: 50 #In epochs
