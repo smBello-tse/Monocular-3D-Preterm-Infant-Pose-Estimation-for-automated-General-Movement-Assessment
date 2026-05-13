@@ -103,7 +103,20 @@ Note that without groundtruth, 3D estimated pose will be in 2.5d coordinates. Se
 
 For both MotionBERT and PoseMamba, run:
 ```
-python infer_mb.py --config configs/your_config.yaml -e checkpoint/path_to_checkpoint.bin --gt -save_test
+python inference.py --config configs/your_config.yaml -e checkpoint/path_to_checkpoint.bin --gt --save_test 
 ```
 
 ```--gt``` and ```--save_test``` are used indicate the presence of GT and compute MPJPE, and for saving results, respectively.
+
+### GMA CLASSIFICATION
+
+The first step for GMA classification is to compute the mean 3d dispersion (see ...) using ```evaluateM3D.py```. It creates three directories, one containing activation maps (maps), one containing 3D visualizations of normalized coordinates of the right elbow (visus), and one containing the values of M3D in a csv file (evals).
+```commandline
+python evaluateM3D.py --dir path_to_your_3d_poses
+```
+
+The second step is classification using ```classification.py``` and the gt file provided in this work: ```Decision.xlxs```. Both file must be placed at the same level in the file tree.
+```commandline
+python classification.py --dir path_to_m3d_result_file --dir name_of_m3d_result_file
+```
+CI in the output summary means "confidence interval."

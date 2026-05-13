@@ -31,8 +31,6 @@ def parse_args():
     parser.add_argument('--pixel', action='store_true', help='align with pixel coordinates')
     parser.add_argument('--focus', type=int, default=None, help='target person id')
     parser.add_argument('--clip_len', type=int, default=81, help='clip length for network input')
-    parser.add_argument("--method3d", type=str, default="mb", help="Name of 3d method")
-    parser.add_argument("--subset", type=str, default="test", help="Subset")
     parser.add_argument("--gt", action="store_true", help="If gt is present for evaluation")
     parser.add_argument("--save_test", action="store_true", help="Whether to save the test results as npy files")
     opts = parser.parse_args()
