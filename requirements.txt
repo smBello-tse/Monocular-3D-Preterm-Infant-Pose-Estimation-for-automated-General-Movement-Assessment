@@ -25,3 +25,4 @@ numba
 scikit-image
 filterpy
 moviepy
+openpyxl
