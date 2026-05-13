@@ -110,7 +110,7 @@ python inference.py --config configs/your_config.yaml -e checkpoint/path_to_chec
 
 ### GMA CLASSIFICATION
 
-The first step for GMA classification is to compute the mean 3d dispersion (see ...) using ```evaluateM3D.py```. It creates three directories, one containing activation maps (maps), one containing 3D visualizations of normalized coordinates of the right elbow (visus), and one containing the values of M3D in a csv file (evals).
+The first step for GMA classification is to compute the mean 3d dispersion (see Soualmi A, Alata O, Ducottet C, Patural H, Giraud A. Mean 3D Dispersion for Automatic General Movement Assessment of Preterm Infants. Annu Int Conf IEEE Eng Med Biol Soc. 2023 Jul;2023:1-5. doi: 10.1109/EMBC40787.2023.10340961. PMID: 38083633.) using ```evaluateM3D.py```. It creates three directories, one containing activation maps (maps), one containing 3D visualizations of normalized coordinates of the right elbow (visus), and one containing the values of M3D in a csv file (evals).
 ```commandline
 python evaluateM3D.py --dir path_to_your_3d_poses
 ```
