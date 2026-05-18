@@ -52,6 +52,8 @@ def coco2h36m(x):
 def read_input(input_path, vid_size):
 
     joint_2d = np.load(input_path)
+    if C == 2:
+        joint_2d = np.concatenate((joint_2d, np.ones((T, J, 1))), axis=2)
     joint_2d = coco2h36m(joint_2d)
     return normalize(joint_2d, vid_size[0], vid_size[1])
 
