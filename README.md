@@ -81,6 +81,8 @@ python convert2pkl.py
 python tools/convert_h36m.py
 ```
 
+The links to collect the data and checkpoints are and ,respectively.
+
 ### TRAINING AND VALIDATION
 
 NB: Do not use ```persistent_workers```, as this will completely disable new view generation.
