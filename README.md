@@ -118,7 +118,8 @@ The second step is classification using ```classification.py``` and the gt file 
 ```commandline
 python classification.py --dir path_to_m3d_result_file --dir name_of_m3d_result_file
 
+CI in the output summary means "confidence interval."
+
 ### CREDITS AND ACKNOWLEGMENTS
 This repository was built upon codes available at the repositories for Zhu, W., Ma, X., Liu, Z., Liu, L., Wu, W., & Wang, Y. (2023). Motionbert: A unified perspective on learning human motion representations. In Proceedings of the IEEE/CVF international conference on computer vision (pp. 15085-15099) (https://github.com/Walter0807/MotionBERT); Huang, Y., Liu, J., Xian, K., & Qiu, R. C. (2025, April). Posemamba: Monocular 3d human pose estimation with bidirectional global-local spatio-temporal state space model. In Proceedings of the AAAI Conference on Artificial Intelligence (Vol. 39, No. 4, pp. 3842-3850) (https://github.com/nankingjing/PoseMamba); and Ci, H., Wang, C., Ma, X., & Wang, Y. (2019). Optimizing network structure for 3d human pose estimation. In Proceedings of the IEEE/CVF international conference on computer vision (pp. 2262-2271) (https://github.com/CHUNYUWANG/lcn-pose).
 ```
-CI in the output summary means "confidence interval."
