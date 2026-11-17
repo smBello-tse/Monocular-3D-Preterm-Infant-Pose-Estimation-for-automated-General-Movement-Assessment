@@ -166,7 +166,7 @@ def rotation_matrix(sign, vector1, vector2):
         rot_angle = 0
     else:
      rot_axe = rot_axe / np.linalg.norm(rot_axe)
-     rot_angle = acos(np.dot(vector1, vector2))
+     rot_angle = np.arccos(np.clip(np.dot(vector1, vector2), -1.0, 1.0))
     ax, ay, az = rot_axe[0], rot_axe[1], rot_axe[2]
 
     if sign == "+":
@@ -184,20 +184,27 @@ def rotation_matrix(sign, vector1, vector2):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dir", type=str, default="data/outputs", help="Path to the 3d poses.")
+    parser.add_argument("--p2d", action="store_true", help="Whether to use 2d poses.")
     opts = parser.parse_args()
     return opts
 
 
 opts = parse_args()
 og_path = opts.dir
-m3d_dir = f"m3d/"
+m3d_dir = "m2d/" if opts.p2d else"m3d/"
 os.makedirs(m3d_dir, exist_ok=True)
 # GT_3D_list, patients = get_file_list_and_names(og_path, "coords_3D.npy", subset_list=[subset])
 #preds_3D_list, patients = get_file_list_and_names(og_path, f"{method3d}{view}_{data_augmentation}.npy",
                                                   #subset_list=[subset])
 # preds_3D_list1, patient_train = get_file_list_and_names(files_path, f"lr_{lr}_batch_{batch_size}_no_freeze_epochs_{nb_epochs}.npy", subset_list = ["train"])
 # preds_3D_list2, patient_test = get_file_list_and_names(og_path, f"epochs_{nb_epochs}.npy", subset_list=["test"])
-preds_3D_list = [f for f in os.listdir(og_path) if f.endswith(".npy")]
+if opts.p2d:
+    print("Using 2D poses.")
+    file = "2d_pose.npy"
+else:
+    file = "3d_pose.npy"
+    print("Using 3D poses.")
+preds_3D_list = [f for f in os.listdir(og_path)]
 
 results_dataf = pd.DataFrame(columns=['Video', 'left_elbow', 'right_elbow',
                                       'left_wrist', 'right_wrist', 'upper_joints', 'left_knee',
@@ -208,9 +215,11 @@ vid_counter = 0
 for vi in preds_3D_list:
     counter = 0
     # dataf = np.load(vi)
-    #print(vi, patient)
-    dataf = np.load(os.path.join(og_path, vi))
-    patient = os.path.splitext(vi)[0]
+    print(vi)
+    dataf = np.load(os.path.join(og_path, vi, file))
+    T, J, _ = dataf.shape
+    dataf = h36m2coco(dataf)
+    patient = vi
 
     right_elbow_coords = []
     right_shld_coords = []
@@ -402,14 +411,17 @@ for vi in preds_3D_list:
                                                    joints_var]
     print(vid_counter, " ", vi)
     vid_counter += 1
-    # data_norm = np.concatenate([np.array(right_Elbow.coords_norm),
-    #                     np.array(left_Elbow.coords_norm),
-    #                     np.array(right_Hand.coords_norm),
-    #                     np.array(left_Hand.coords_norm),
-    #                     np.array(right_Knee.coords_norm),
-    #                     np.array(left_Knee.coords_norm),
-    #                     np.array(right_Ankle.coords_norm),
-    #                     np.array(left_Ankle.coords_norm)], axis=1)
+    data_norm = np.concatenate([np.array(right_Elbow.coords_norm),
+                        np.array(left_Elbow.coords_norm),
+                        np.array(right_Hand.coords_norm),
+                        np.array(left_Hand.coords_norm),
+                        np.array(right_Knee.coords_norm),
+                        np.array(left_Knee.coords_norm),
+                        np.array(right_Ankle.coords_norm),
+                        np.array(left_Ankle.coords_norm)], axis=1)
+    os.makedirs(os.path.join(m3d_dir + "normed_poses"), exist_ok=True)
+    np.save(os.path.join(m3d_dir + "normed_poses", f"{patient}_norm.npy"), data_norm)
+
 
 
     os.makedirs(os.path.join(m3d_dir + "maps"), exist_ok=True)
@@ -423,3 +435,5 @@ variance_columns = ['left_elbow', 'right_elbow', 'left_wrist', 'right_wrist',
                     'right_ankle', 'lower_joints', 'all_joints']
 
 results_dataf.to_csv(os.path.join(m3d_dir + "evals", "m3d.csv"), index=False)
+
+
