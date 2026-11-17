@@ -65,6 +65,49 @@ class DataReaderH36M(object):
             testset = np.concatenate((testset, test_confidence), axis=2)  # [N, 17, 3]
         return trainset, testset
 
+    def read_2d_ref(self):
+        trainset = self.dt_dataset['train']['ref_joint_2d'][::self.sample_stride, :, :2].astype(np.float32)  # [N, 17, 2]
+        testset = self.dt_dataset['test']['ref_joint_2d'][::self.sample_stride, :, :2].astype(np.float32)  # [N, 17, 2]
+        # map to [-1, 1]
+        for idx, camera_name in enumerate(self.dt_dataset['train']['camera_name']):
+            if camera_name == '54138969' or camera_name == '60457274':
+                res_w, res_h = 1000, 1002
+            elif camera_name == '55011271' or camera_name == '58860488':
+                res_w, res_h = 1000, 1000
+            elif camera_name == '880720':
+                res_w, res_h = 880, 720
+            elif camera_name == '1280720':
+                res_w, res_h = 1280, 720
+            else:
+                assert 0, '%d data item has an invalid camera name' % idx
+            trainset[idx, :, :] = trainset[idx, :, :] / res_w * 2 - [1, res_h / res_w]
+        for idx, camera_name in enumerate(self.dt_dataset['test']['camera_name']):
+            if camera_name == '54138969' or camera_name == '60457274':
+                res_w, res_h = 1000, 1002
+            elif camera_name == '55011271' or camera_name == '58860488':
+                res_w, res_h = 1000, 1000
+            elif camera_name == '880720':
+                res_w, res_h = 880, 720
+            elif camera_name == '1280720':
+                res_w, res_h = 1280, 720
+            else:
+                assert 0, '%d data item has an invalid camera name' % idx
+            testset[idx, :, :] = testset[idx, :, :] / res_w * 2 - [1, res_h / res_w]
+        if self.read_confidence:
+            if 'confidence' in self.dt_dataset['train'].keys():
+                train_confidence = self.dt_dataset['train']['confidence'][::self.sample_stride].astype(np.float32)
+                test_confidence = self.dt_dataset['test']['confidence'][::self.sample_stride].astype(np.float32)
+                if len(train_confidence.shape)==2: # (1559752, 17)
+                    train_confidence = train_confidence[:,:,None]
+                    test_confidence = test_confidence[:,:,None]
+            else:
+                # No conf provided, fill with 1.
+                train_confidence = np.ones(trainset.shape)[:,:,0:1]
+                test_confidence = np.ones(testset.shape)[:,:,0:1]
+            trainset = np.concatenate((trainset, train_confidence), axis=2)  # [N, 17, 3]
+            testset = np.concatenate((testset, test_confidence), axis=2)  # [N, 17, 3]
+        return trainset, testset
+
     def read_3d(self):
         train_labels = self.dt_dataset['train']['joint3d_image'][::self.sample_stride, :, :3].astype(np.float32)  # [N, 17, 3]
         test_labels = self.dt_dataset['test']['joint3d_image'][::self.sample_stride, :, :3].astype(np.float32)    # [N, 17, 3]
@@ -98,6 +141,15 @@ class DataReaderH36M(object):
             test_labels[idx, :, 2:] = test_labels[idx, :, 2:] / res_w * 2
             
         return train_labels, test_labels
+
+    def read_3d_cam(self):
+        train_labels = self.dt_dataset['train']['joint3d_cam'][::self.sample_stride, :, :3].astype(
+            np.float32)  # [N, 17, 3]
+        test_labels = self.dt_dataset['test']['joint3d_cam'][::self.sample_stride, :, :3].astype(
+            np.float32)  # [N, 17, 3]
+
+        return train_labels, test_labels
+
     def read_hw(self):
         if self.test_hw is not None:
             return self.test_hw
@@ -136,11 +188,15 @@ class DataReaderH36M(object):
     def get_sliced_data(self):
         train_data, test_data = self.read_2d()     #input: train_data (1559752, 17, 3) test_data (566920, 17, 3)
         train_labels, test_labels = self.read_3d() #GT: train_labels (1559752, 17, 3) test_labels (566920, 17, 3)
+        train_cam, test_cam = self.read_3d_cam()
+        train_ref, test_ref = self.read_2d_ref()
         split_id_train, split_id_test = self.get_split_id()
         train_data, test_data = train_data[split_id_train], test_data[split_id_test]                # (N, 27, 17, 3)
         train_labels, test_labels = train_labels[split_id_train], test_labels[split_id_test]        # (N, 27, 17, 3)
+        train_cam, test_cam = train_cam[split_id_train], test_cam[split_id_test]
+        train_ref, test_ref = train_ref[split_id_train], test_ref[split_id_test]
         # ipdb.set_trace()
-        return train_data, test_data, train_labels, test_labels
+        return train_data, test_data, train_labels, test_labels, train_cam, test_cam, train_ref, test_ref
     
     def denormalize(self, test_data):
 #       data: (N, n_frames, 51) or data: (N, n_frames, 17, 3)        
