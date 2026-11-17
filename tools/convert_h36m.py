@@ -3,12 +3,22 @@ import sys
 import pickle
 import numpy as np
 import random
+import argparse
+
 sys.path.insert(0, os.getcwd())
 from lib.utils.tools import read_pkl
 from lib.data.datareader_h36m import DataReaderH36M
 from tqdm import tqdm
-# To convert sequences into clips of n_frames frames (Here, we used n_frames=81)
 
+
+# To convert sequences into clips of n_frames frames (Here, we used n_frames=81)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--finetuning_data", action="store_true", help="finetuning data")
+    parser.add_argument("--name", type=str, default="agma", help="data name")
+
+    args = parser.parse_args()
+    return args
 
 def save_clips(subset_name, root_path, train_data, train_labels, train_cam, train_ref):
     len_train = len(train_data)
@@ -23,16 +33,25 @@ def save_clips(subset_name, root_path, train_data, train_labels, train_cam, trai
             "data_cam": data_cam,
             "data_ref": data_ref
         }
-        with open(os.path.join(save_path, "%08d.pkl" % i), "wb") as myprofile:  
+        with open(os.path.join(save_path, "%08d.pkl" % i), "wb") as myprofile:
             pickle.dump(data_dict, myprofile)
-            
-datareader = DataReaderH36M(n_frames=81, sample_stride=1, data_stride_train=81, data_stride_test=81, dt_file = 'data.pkl', dt_root='data/motion3d/')
-train_data, test_data, train_labels, test_labels, train_factors, test_factors, train_cam, test_cam, train_data_ref, test_data_ref = datareader.get_sliced_data()
+
+
+args = parse_args()
+if args.finetuning_data:
+    name = args.name
+    dirname = args.name.upper()
+else:
+    name = "data"
+    dirname = "DATA-SH"
+datareader = DataReaderH36M(n_frames=81, sample_stride=1, data_stride_train=25, data_stride_test=81,
+                            dt_file=f'{name}.pkl', dt_root='data/motion3d/')
+train_data, test_data, train_labels, test_labels, train_cam, test_cam, train_data_ref, test_data_ref = datareader.get_sliced_data()
 print(train_data.shape, test_data.shape)
 assert len(train_data) == len(train_labels)
 assert len(test_data) == len(test_labels)
 
-root_path = "data/motion3d/MB3D_f243s81/DATA-SH"
+root_path = f"data/motion3d/MB3D_f243s81/{dirname}"
 if not os.path.exists(root_path):
     os.makedirs(root_path)
 
