@@ -137,4 +137,3 @@ The second step is classification using ```classification_kfolds.py``` for the 1
 python classification_kfolds.py --dir path_to_m3d_result_file --file name_of_m3d_result_file
 python classification_loso.py --dir path_to_m3d_result_file --file name_of_m3d_result_file
 ```
-CI in the output summary means "confidence interval." Use ```--print``` to print the results in the terminal.
